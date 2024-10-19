@@ -1,0 +1,24 @@
+/* src/styles.css */
+
+body {
+  background-color: #f8f9fa; /* Light background for better contrast */
+}
+
+.text-success {
+  color: #28a745 !important; /* Success text color */
+}
+
+.text-danger {
+  color: #dc3545 !important; /* Danger text color */
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.modal-header,
+.modal-footer {
+  background-color: #e9ecef;
+}

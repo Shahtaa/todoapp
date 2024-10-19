@@ -1,101 +1,216 @@
-import { useState, useEffect } from 'react'; // Import necessary hooks from React
-import axios from 'axios'; // Import Axios for making HTTP requests
-import './App.css'; // Import CSS file for styling
+// src/App.jsx
+
+import { useState } from 'react';
+import { Table, Button, Form, Modal } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles.css';
 
 const App = () => {
-  const [todos, setTodos] = useState([]); // State variable for storing todos
-  const [inputValue, setInputValue] = useState(''); // State variable for input value
+  const [users, setUsers] = useState([
+    { id: 1, username: 'john_doe', password: 'password123' },
+    { id: 2, username: 'jane_doe', password: 'password456' },
+  ]);
 
-  useEffect(() => {
-    // Effect hook to fetch todos when the component mounts
-    axios.get('http://localhost:3001/todos') // Fetch todos from the server
-      .then(response => {
-        setTodos(response.data); // Update todos state with fetched data
-      })
-      .catch(error => {
-        console.error('Error fetching todo items:', error); // Log error if fetching fails
-      });
-  }, []); // Empty dependency array ensures the effect runs only once when the component mounts
+  const [tasks, setTasks] = useState([
+    { id: 1, user_id: 1, title: 'Buy groceries', is_completed: false },
+    { id: 2, user_id: 2, title: 'Read a book', is_completed: true },
+  ]);
 
-  const handleChange = (e) => {
-    setInputValue(e.target.value); // Update input value as user types
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [newTask, setNewTask] = useState({ title: '', user_id: 1 });
+  const [newUser, setNewUser] = useState({ username: '', password: '' });
+
+  const handleAddTask = () => {
+    const newId = tasks.length ? tasks[tasks.length - 1].id + 1 : 1;
+    const taskToAdd = {
+      id: newId,
+      user_id: Number(newTask.user_id),
+      title: newTask.title,
+      is_completed: false,
+    };
+    setTasks([...tasks, taskToAdd]);
+    setShowTaskModal(false);
+    setNewTask({ title: '', user_id: 1 });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    if (inputValue.trim() !== '') { // Check if input value is not empty
-      try {
-        // Send POST request to add new todo
-        const response = await axios.post('http://localhost:3001/todos', {
-          title: inputValue, // New todo title
-          completed: false // New todo is not completed initially
-        });
-        setTodos([...todos, response.data]); // Add new todo to todos array
-        setInputValue(''); // Clear input value after adding todo
-      } catch (error) {
-        console.error('Error adding todo item:', error); // Log error if adding todo fails
-      }
-    }
+  const handleAddUser = () => {
+    const newId = users.length ? users[users.length - 1].id + 1 : 1;
+    const userToAdd = {
+      id: newId,
+      username: newUser.username,
+      password: newUser.password,
+    };
+    setUsers([...users, userToAdd]);
+    setShowUserModal(false);
+    setNewUser({ username: '', password: '' });
   };
 
-  const handleDelete = async (id) => {
-    try {
-      // Send DELETE request to delete todo
-      await axios.delete(`http://localhost:3001/todos/${id}`);
-      // Remove deleted todo from todos array
-      setTodos(todos.filter((todo) => todo.id !== id));
-    } catch (error) {
-      console.error('Error deleting todo item:', error); // Log error if deleting todo fails
-    }
+  const toggleTaskCompletion = (taskId) => {
+    setTasks(tasks.map(task =>
+      task.id === taskId ? { ...task, is_completed: !task.is_completed } : task
+    ));
   };
 
-  const handleComplete = async (id) => {
-    try {
-      // Find the todo to update
-      const todoToUpdate = todos.find(todo => todo.id === id);
-      // Toggle the completion status
-      const updatedTodo = { ...todoToUpdate, completed: !todoToUpdate.completed };
-      // Send PUT request to update todo
-      await axios.put(`http://localhost:3001/todos/${id}`, updatedTodo);
-      // Update todos array with updated todo
-      setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)));
-    } catch (error) {
-      console.error('Error updating todo item:', error); // Log error if updating todo fails
-    }
-  };
-
-  // JSX code for rendering the component
   return (
-    <div className="container"> {/* Container for the todo list */}
-      <h1 className="title">Todo List</h1> {/* Title of the todo list */}
-      <form onSubmit={handleSubmit}> {/* Form for adding new todo */}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleChange}
-          placeholder="Enter a new task"
-          className="input" // Input field for entering new todo
-        />
-        <button type="submit" className="button">Add</button> {/* Button to add new todo */}
-      </form>
-      <ul className="todo-list"> {/* List to display todos */}
-        {todos.map((todo) => (
-          <li key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
-            {/* Individual todo item */}
-            <span className={todo.completed ? 'completed' : ''}>{todo.title}</span> {/* Title of the todo */}
-            <div>
-              {/* Button to mark todo as complete or incomplete */}
-              <button onClick={() => handleComplete(todo.id)} className={`complete-button ${todo.completed ? 'undo' : ''}`}>
-                {todo.completed ? 'Undo' : 'Complete'}
-              </button>
-              {/* Button to delete todo */}
-              <button onClick={() => handleDelete(todo.id)} className="delete-button">Delete</button>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <div className="container mt-4">
+      <h1 className="mb-4">User Tasks</h1>
+
+      <Button variant="primary" onClick={() => setShowUserModal(true)} className="mb-3">
+        Add User
+      </Button>
+
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.username}</td>
+              <td>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setNewTask({ ...newTask, user_id: user.id });
+                    setShowTaskModal(true);
+                  }}
+                >
+                  Add Task
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      <h2 className="mt-4">Tasks</h2>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Assigned User</th>
+            <th>Title</th>
+            <th>Completed</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.map((task) => {
+            const assignedUser = users.find(user => user.id === task.user_id);
+            return (
+              <tr key={task.id}>
+                <td>{task.id}</td>
+                <td>{assignedUser ? assignedUser.username : 'Unknown'}</td>
+                <td>{task.title}</td>
+                <td>{task.is_completed ? 'Yes' : 'No'}</td>
+                <td>
+                  <Button variant="success" onClick={() => toggleTaskCompletion(task.id)}>
+                    Mark as {task.is_completed ? 'Incomplete' : 'Completed'}
+                  </Button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+
+      {/* Modal for adding a new task */}
+      <Modal show={showTaskModal} onHide={() => setShowTaskModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Task</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="taskTitle">
+              <Form.Label>Task Title</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter task title"
+                value={newTask.title}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, title: e.target.value })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="userSelect">
+              <Form.Label>Assign to User</Form.Label>
+              <Form.Control
+                as="select"
+                value={newTask.user_id}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, user_id: e.target.value })
+                }
+              >
+                {users.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.username}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowTaskModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddTask}>
+            Add Task
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal for adding a new user */}
+      <Modal show={showUserModal} onHide={() => setShowUserModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="username">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter username"
+                value={newUser.username}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, username: e.target.value })
+                }
+                autoComplete="username" // Added autocomplete
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter password"
+                value={newUser.password}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, password: e.target.value })
+                }
+                autoComplete="current-password" // Added autocomplete
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowUserModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddUser}>
+            Add User
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 };
 
-export default App; // Export the component as the default export
+export default App;
