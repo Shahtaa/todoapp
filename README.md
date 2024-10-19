@@ -1,21 +1,51 @@
-## React Todo List
+# User Tasks Management App
 
-### Description
+This is a simple user tasks management application built using React and Bootstrap, with a focus on usability and performance. Users can add tasks, mark them as completed, and view all tasks associated with each user.
 
-This project is a simple Todo List application built with React. It allows users to add new tasks, mark them as completed, and delete tasks. The application fetches and updates todo items from a JSON server using Axios for HTTP requests. Styling is applied using CSS, creating a clean and user-friendly interface.
+## Features
 
-### Key Features
+- Add new tasks associated with users.
+- Mark tasks as completed or incomplete.
+- Responsive design with Bootstrap.
 
-- Effortlessly add new tasks
-- Mark tasks as complete or incomplete with a simple click
-- Quickly delete tasks you no longer need
-- Responsive design ensures seamless usage across devices
-- Intuitive user interface for easy navigation and interaction
+## Technologies Used
 
-### Technologies Used
+- React
+- Vite
+- Bootstrap
+- JavaScript
 
-- React.js for building a dynamic and interactive user interface
-- Vite for lightning-fast development and optimized build times
-- Axios for making asynchronous HTTP requests to interact with a backend server
-- JavaScript (ES6+) for implementing modern and efficient code
-- HTML5 and CSS3 for structuring and styling the application
+## Getting Started
+
+### Prerequisites
+
+Make sure you have the following installed:
+
+- Node.js (>= 14.x)
+- npm (>= 6.x)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/Shahtaa/todoapp.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd todoapp
+   ```
+
+3. Install the dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
